@@ -39,7 +39,13 @@ Health checks: `GET /healthz` (alive), `GET /readyz` (ready).
   commit, redeploy. Available tags:
   https://github.com/coollabsio/jean/pkgs/container/jean-server
 
-Data lives in the named `jean-data` volume and survives updates.
+Two named volumes survive updates and rebuilds:
+- `jean-home` (`/home/jean`) — CLI logins/tokens (Claude, gh, codex, git, ssh).
+- `jean-data` (`…/com.jean.desktop`) — projects, preferences, sessions.
+
+Log in to each CLI once inside the container (`claude`, `gh auth login`,
+`codex login`, `ssh-keygen`/git config); the credentials then persist across
+every redeploy.
 
 ## Sync your local settings
 

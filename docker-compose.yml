@@ -23,7 +23,13 @@ services:
     ports:
       - "3456"
     volumes:
-      # Persists projects, preferences, sessions across redeploys/image updates.
+      # Whole home dir: persists CLI logins/tokens (Claude ~/.claude(.json), gh
+      # ~/.config/gh, codex ~/.codex, git ~/.gitconfig, ssh ~/.ssh) across rebuilds.
+      # Without this, every redeploy wipes the writable layer and you re-login.
+      - jean-home:/home/jean
+      # App data (projects, preferences, sessions). Mounted separately because the
+      # image declares VOLUME on this exact path — an explicit named mount overrides
+      # the anonymous volume Docker would otherwise recreate (and lose) on rebuild.
       - jean-data:/home/jean/.local/share/com.jean.desktop
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3456/healthz"]
@@ -33,4 +39,5 @@ services:
       start_period: 20s
 
 volumes:
+  jean-home:
   jean-data:
