@@ -1,9 +1,11 @@
 services:
   jean:
-    # Prebuilt multi-arch (amd64/arm64) headless server image published by upstream.
-    # Pin to a version (e.g. v0.1.66) for reproducible deploys; use :latest to always
-    # pull the newest release on redeploy.
-    image: ghcr.io/coollabsio/jean-server:latest
+    # Thin build over the upstream prebuilt headless image that adds Node.js, so
+    # npx-based MCP servers / skills (e.g. Caveman) can install and run. See
+    # Dockerfile — pin the base tag there for reproducible deploys.
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     environment:
       - JEAN_HEADLESS=1
