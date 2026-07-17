@@ -41,6 +41,28 @@ Health checks: `GET /healthz` (alive), `GET /readyz` (ready).
 
 Data lives in the named `jean-data` volume and survives updates.
 
+## Sync your local settings
+
+`preferences.seed.json` is a scrubbed copy of a desktop Jean's `preferences.json`
+— theme, models, keybindings, magic prompts, fonts. Stripped: the local HTTP
+server token + binding (the container uses `JEAN_*` env), host-specific
+`*_cli_source` / WSL / custom CLI profiles, and first-run onboarding flags.
+
+Not synced: `projects.json` and `sessions/` reference local absolute paths that
+don't exist in the container — re-add projects on the server (fresh git clones).
+
+Drop it into the running container's data volume, then restart the service:
+
+```bash
+docker cp preferences.seed.json <jean-container>:/home/jean/.local/share/com.jean.desktop/preferences.json
+docker exec -u root <jean-container> chown jean:jean /home/jean/.local/share/com.jean.desktop/preferences.json
+```
+
+To refresh the seed from your current desktop settings, re-run the scrub against
+your local `~/Library/Application Support/com.jean.desktop/preferences.json`
+(macOS) / `~/.local/share/com.jean.desktop/preferences.json` (Linux), dropping
+the same secret + host-specific keys before committing.
+
 ## Notes
 
 - Never map a fixed host port or disable the token on a public bind — both bypass
