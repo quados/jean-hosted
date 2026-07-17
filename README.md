@@ -84,6 +84,11 @@ the same secret + host-specific keys before committing.
 
 - Never map a fixed host port or disable the token on a public bind — both bypass
   the security model. Keep the anonymous `ports: - "3456"` as-is.
+- The `PATH` env in `docker-compose.yml` exposes Jean's embedded CLIs (`claude`,
+  `codex`, `opencode`, `gh`, …) so npx installers that auto-detect agents via
+  `command -v claude` (e.g. Caveman) work. Without it they report every agent as
+  "Missing". Note the CLIs are downloaded on first use, so an agent is only
+  detected after you've run it once in Jean.
 - To customize Jean's code, fork upstream and either build `Dockerfile.server` in
   Coolify or run the fork's `server-release` workflow and point `image:` at your
   own `ghcr.io/<you>/jean-server`.

@@ -15,6 +15,12 @@ services:
       # Token auth is REQUIRED for any non-localhost bind. Coolify auto-generates a
       # long random value; never disable this on an internet-exposed instance.
       - JEAN_TOKEN=${SERVICE_PASSWORD_JEANTOKEN}
+      # Put Jean's embedded CLIs (claude, codex, opencode, gh, …) on PATH. They
+      # live in per-tool dirs under the data volume and are normally invoked by
+      # full path, so they're off PATH. npx-based installers that auto-detect
+      # agents via `command -v claude` (e.g. Caveman) need them here, else every
+      # agent reads "Missing". Standard dirs kept last (node/npx stay at /usr/bin).
+      - PATH=/home/jean/.local/share/com.jean.desktop/claude-cli:/home/jean/.local/share/com.jean.desktop/codex-cli:/home/jean/.local/share/com.jean.desktop/opencode-cli:/home/jean/.local/share/com.jean.desktop/commandcode-cli:/home/jean/.local/share/com.jean.desktop/gh-cli:/home/jean/.local/share/com.jean.desktop/coderabbit-cli:/home/jean/.local/share/com.jean.desktop/rtk-cli:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       # Coolify auto-generates the domain/FQDN from the exposed port and routes it
       # through the proxy. The browser UI is served from that domain, so the default
       # same-origin policy already covers it — only set JEAN_ALLOWED_ORIGINS if you
