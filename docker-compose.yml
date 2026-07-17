@@ -1,0 +1,36 @@
+services:
+  jean:
+    # Prebuilt multi-arch (amd64/arm64) headless server image published by upstream.
+    # Pin to a version (e.g. v0.1.66) for reproducible deploys; use :latest to always
+    # pull the newest release on redeploy.
+    image: ghcr.io/coollabsio/jean-server:latest
+    restart: unless-stopped
+    environment:
+      - JEAN_HEADLESS=1
+      # Must bind 0.0.0.0 inside the container so the Coolify proxy can reach it.
+      - JEAN_HOST=0.0.0.0
+      - JEAN_PORT=3456
+      # Coolify injects the public URL here; also becomes the allowed browser origin.
+      - SERVICE_FQDN_JEAN_3456
+      # Token auth is REQUIRED for any non-localhost bind. Coolify auto-generates a
+      # long random value; never disable this on an internet-exposed instance.
+      - JEAN_TOKEN=${SERVICE_PASSWORD_JEANTOKEN}
+      # Restrict browser access to the served domain (same-origin default otherwise).
+      - JEAN_ALLOWED_ORIGINS=${SERVICE_FQDN_JEAN_3456}
+    # Anonymous host port only — the domain is configured in the Coolify UI and the
+    # proxy terminates TLS. Never map a fixed host port (e.g. 3456:3456): that bypasses
+    # the proxy and exposes the token-gated service directly.
+    ports:
+      - "3456"
+    volumes:
+      # Persists projects, preferences, sessions across redeploys/image updates.
+      - jean-data:/home/jean/.local/share/com.jean.desktop
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3456/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  jean-data:
